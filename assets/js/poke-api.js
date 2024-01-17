@@ -1,11 +1,13 @@
 
 const pokeApi = {}
+// Função para converter dados da API
 
 function convertPokeApiDetailToPokemon(pokeDetail) {
     const pokemon = new Pokemon()
     pokemon.number = pokeDetail.id
     pokemon.name = pokeDetail.name
 
+    // Converte lista de tipos em variável
     const types = pokeDetail.types.map((typeSlot) => typeSlot.type.name)
     const [type] = types
 
@@ -19,8 +21,10 @@ function convertPokeApiDetailToPokemon(pokeDetail) {
 
 pokeApi.getPokemonDetail = (pokemon) => {
     return fetch(pokemon.url)
-        .then((response) => response.json())
-        .then(convertPokeApiDetailToPokemon)
+        .then((response) => response.json().then((pokemon) => {
+            return convertPokeApiDetailToPokemon(pokemon);
+        })
+    );
 }
 
 pokeApi.getPokemons = (offset = 0, limit = 5) => {
@@ -33,3 +37,20 @@ pokeApi.getPokemons = (offset = 0, limit = 5) => {
         .then((detailRequests) => Promise.all(detailRequests))
         .then((pokemonsDetails) => pokemonsDetails)
 }
+
+// Função para extrair detalhes do pokemon
+pokeApi.getPokemonDetailsToProfile = (id) => {
+    // URL de requisição
+    const url = `https://pokeapi.co/api/v2/pokemon/${id}`;
+  
+    // Retornando informações do pokemon tratadas
+    return (
+      fetch(url)
+        // Trata o resultado da promise para json
+        .then((response) => response.json())
+        .then((pokemonDetails) => {
+          return convertPokeApiDetailToPokemon(pokemonDetails);
+        })
+        .catch((error) => console.log(error))
+    );
+  };
